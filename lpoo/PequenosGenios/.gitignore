@@ -3,3 +3,5 @@ lpoo/PequenosGenios/api_key.txt
 target/
 **/target/
 *.class
+.DS_Store
+**/.DS_Store
