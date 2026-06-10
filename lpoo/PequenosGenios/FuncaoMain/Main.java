@@ -4,7 +4,6 @@ import model.Character;
 import model.Player;
 import model.Enemy;
 import battle.BattleManager;
-import questoes.QuestionBank;
 
 import java.util.Scanner;
 
@@ -12,7 +11,7 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        QuestionBank questionBank = new QuestionBank();
+        questions_system questionGenerator = new questions_system();
         showWelcome();
 
         // Seleção de personagem
@@ -42,7 +41,7 @@ public class Main {
             System.out.print("\n[Pressione ENTER para iniciar a batalha...]");
             scanner.nextLine();
 
-            BattleManager battle = new BattleManager(player, enemy, questionBank, scanner);
+            BattleManager battle = new BattleManager(player, enemy, questionGenerator, scanner);
             boolean won = battle.playBattle();
 
             if (won) {
@@ -58,7 +57,6 @@ public class Main {
         scanner.close();
     }
 
-    // Tela de boas-vindas
     private static void showWelcome() {
         System.out.println("╔══════════════════════════════════════════╗");
         System.out.println("║              Pequenos Gênios             ║");
@@ -102,7 +100,6 @@ public class Main {
         }
     }
 
-    // Tela final com estatísticas
     private static void showFinalScreen(Player player, int battlesWon, int totalBattles) {
         System.out.println("\n╔══════════════════════════════════════════╗");
         if (battlesWon == totalBattles) {
