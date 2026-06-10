@@ -10,19 +10,33 @@ public class MultipleChoiceQuestion extends Question {  // Class representing a 
         this.correctIndex = correctIndex; // Initializing the correctIndex with the provided index of the correct answer for the multiple choice question
     }
 
-    @Override // Overriding the checkAnswer method from the Question class to provide the logic for checking if a given answer is correct for a multiple choice question
-    public boolean checkAnswer(String answer) { // Method to check if the provided answer is correct for the multiple choice question, overriding the abstract method from the Question class
-        answer = answer.trim().toUpperCase(); // Trimming any leading or trailing whitespace from the provided answer and converting it to uppercase for case-insensitive comparison
-        try {
-            int index = Integer.parseInt(answer.trim()); // Attempting to parse the provided answer as an integer index
-            return index == correctIndex; // Returning true if the parsed index matches the correctIndex for the multiple choice question
-        } catch (NumberFormatException e) {
-            return false; // If the provided answer cannot be parsed as an integer (e.g., if it's not a valid index)
-        }
+@Override
+public boolean checkAnswer(String answer) {
+    if (answer == null || answer.trim().isEmpty()) {
+        return false;
     }
 
-    public String[] getOptions()   { return options; } // Getter method to retrieve the options array for the multiple choice question
-    public int getCorrectIndex()   { return correctIndex; } // Getter method to retrieve the index of the correct answer for the multiple choice question
+    // Limpa espaços e transforma tudo em maiúsculo (ex: "  c) au  " vira "C) AU")
+    String cleanAnswer = answer.trim().toUpperCase();
+    
+    // Pega o primeiro caractere digitado (ex: 'C')
+    char primeiraLetra = cleanAnswer.charAt(0);
+    
+    // Se o usuário digitou uma letra de A a Z
+    if (primeiraLetra >= 'A' && primeiraLetra <= 'Z') {
+        // Truque de tabela ASCII: 'A' - 'A' = 0 | 'B' - 'A' = 1 | 'C' - 'A' = 2...
+        int indexDoUsuario = primeiraLetra - 'A';
+        return indexDoUsuario == correctIndex;
+    }
+
+    // Mantém este fallback caso em algum teste você queira digitar o número direto (0, 1, 2...)
+    try {
+        int index = Integer.parseInt(cleanAnswer);
+        return index == correctIndex;
+    } catch (NumberFormatException e) {
+        return false;
+    }
+}
 
     @Override
     public String toString() { // Overriding the toString method to provide a string representation of the multiple choice question

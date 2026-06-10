@@ -1,0 +1,5 @@
+api_key.txt
+lpoo/PequenosGenios/api_key.txt
+target/
+**/target/
+*.class

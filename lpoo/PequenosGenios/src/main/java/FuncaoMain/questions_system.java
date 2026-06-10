@@ -1,4 +1,9 @@
-package POO_PROJETO; // Package declaration for the questions_system class
+package FuncaoMain;
+
+import questoes.Question;
+import questoes.MultipleChoiceQuestion;
+import questoes.TrueFalseQuestion;
+
 
 import com.theokanning.openai.completion.chat.ChatCompletionRequest; // Importing libraries for OpenAI API interaction and chat completion request handling
 import com.theokanning.openai.completion.chat.ChatMessage; // Importing necessary for OpenAI API interaction and chat message handling
@@ -12,8 +17,19 @@ import java.util.List; // Importing necessary libraries for handling lists
 
 public class questions_system { // Class declaration
 
-    private static final String API_KEY = System.getenv("OPENAI_API_KEY"); //Protecting API Key
-    private final OpenAiService service; //OpenAI service Instance
+    private static final String API_KEY = lerChaveDoArquivo();
+
+    private final OpenAiService service;
+
+    private static String lerChaveDoArquivo() {
+        try {
+        // Lê o arquivo api_key.txt que está na raiz do projeto
+            return java.nio.file.Files.readString(java.nio.file.Paths.get("api_key.txt")).trim();
+        } catch (Exception e) {
+            System.out.println("[AVISO] Não foi possível ler o arquivo api_key.txt.");
+            return "CHAVE_NAO_ENCONTRADA";
+        }
+    }
 
     public questions_system() { // Constructor for the questions_system class, initializing the OpenAI service instance using the protected API key
         this.service = new OpenAiService(API_KEY); // Initializing the OpenAI service instance using the protected API key
@@ -31,12 +47,16 @@ public class questions_system { // Class declaration
             level, type, level, level
         ); // Prompt for the API call
 
-        ChatCompletionRequest request = ChatCompletionRequest.builder() // Building the chat completion request for the OpenAI API                .messages(List.of(new ChatMessage(ChatMessageRole.USER.value(), prompt))) // Setting the messages for the chat completion request, using the prompt defined above
-               .model("gpt-4o") // Specifying the model to be used
-                .build(); // Building the chat completion request using the builder pattern and returning the response from the OpenAI API as a string
+        // O seu prompt gigante fica em cima, aí você substitui a criação do request por isto:
 
-        return service.createChatCompletion(request) // Calling the OpenAI API to create a chat completion using the built request and returning the content of the first choice as a string
-                      .getChoices().get(0).getMessage().getContent(); // Calling the OpenAI API to create a chat completion using the built request and returning the content of the first choice as a string
+            ChatCompletionRequest request = ChatCompletionRequest.builder()
+                .model("gpt-3.5-turbo") // O modelo de IA que vai gerar a pergunta
+                .messages(java.util.List.of(new ChatMessage("user", prompt))) // <-- O PARAMETRO QUE FALTAVA!
+                .temperature(0.7)
+                .build();
+
+            String raw = service.createChatCompletion(request).getChoices().get(0).getMessage().getContent();
+            return raw;
     }
 
     public Question generateQuestion(String level, String type) { // Method to generate a question based on the specified difficulty level and question type, calling the OpenAI API and parsing the response to create a Question object
@@ -61,6 +81,12 @@ public class questions_system { // Class declaration
             boolean correct = obj.get("correct").getAsBoolean();
             return new TrueFalseQuestion(questionText, difficulty, category, correct); // Creating and returning a new TrueFalseQuestion object using the extracted question text, difficulty level, category, and correct answer boolean from the JSON object
         }
+    }
+
+    public Question generateRandomQuestion(String level) {
+        // Sorteia 50/50 se vai ser múltipla escolha ou V/F
+        String tipoPergunta = (Math.random() < 0.5) ? "multiple_choice" : "true_false";
+        return generateQuestion(level, tipoPergunta);
     }
 
     public static void main(String[] args) {

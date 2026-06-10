@@ -31,7 +31,7 @@ public class BattleManager {
         // Polimorfismo puro: carregando lista dinâmica de habilidades através da Interface base
         this.availableAbilities = new ArrayList<>();
         this.availableAbilities.add(new HealAbility());
-        this.availableAbilities.add(new DoubleDamageAbility());
+        // this.availableAbilities.add(new DoubleDamageAbility());
         this.availableAbilities.add(new ShieldAbility());
     }
 
@@ -52,8 +52,8 @@ public class BattleManager {
             System.out.printf("Status Inimigo -> %s | Dificuldade: %s\n", enemy.getName(), enemy.getDifficulty().toUpperCase());
             System.out.println("=======================================");
 
-            // 1. Gera pergunta via IA de forma aleatória e condizente com o nível do oponente (Requisito 1 & 4)
-            Question question = questionGenerator.generateRandomQuestion(enemy.getDifficulty());
+            String tipoPergunta = (Math.random() < 0.5) ? "multiple_choice" : "true_false";
+            Question question = questionGenerator.generateQuestion(enemy.getDifficulty(), tipoPergunta);
 
             // 2. Apresenta o menu para uso estratégico de habilidades
             exibirMenuTurno(question);
@@ -84,7 +84,7 @@ public class BattleManager {
 
             // 4. Sistema de Dificuldade: Cálculo de Dano e Score Parametrizado (Requisito 4)
             int danoDoJogador = player.getAttackPower();
-            int danoDoInimigo = enemy.getDamage(); // Puxa o poder nativo configurado na Main
+            int danoDoInimigo = enemy.getAttackPower(); // ou enemy.getAttack()
             int pontosDaRodada = 10;
 
             if (enemy.getDifficulty().equalsIgnoreCase("medium")) {
