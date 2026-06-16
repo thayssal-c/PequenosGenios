@@ -7,6 +7,8 @@ public class Player {
     private int hp;
     private final int maxHp;
     private int score;
+    private int perguntasCertas = 0;
+    private int perguntasErradas = 0;
     
     // Novas mecânicas para suporte ao sistema de habilidades
     private int shield = 0;
@@ -69,4 +71,8 @@ public class Player {
         return String.format("%s (%s) | HP: %d/%d | Escudo: %d | Score: %d",
                 name, character.getName(), hp, maxHp, shield, score);
     }
+    public void incrementaAcerto() { this.perguntasCertas++; }
+    public void incrementaErro() { this.perguntasErradas++; }
+    public int getPerguntasCertas() { return perguntasCertas; }
+    public int getPerguntasErradas() { return perguntasErradas; }
 }

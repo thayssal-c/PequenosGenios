@@ -1,21 +1,46 @@
-The project itself is about an General Knowledges game structured with the POLI-UPE students OOP skills in Java. 
+# Pequenos Gênios - CodeArena: Batalha do Conhecimento 🎓⚔️
 
-The mainly goal is to build a functional game with a defined system of battles between the created Characters.
+Este é o projeto final do jogo de perguntas e respostas em turnos, desenvolvido para a disciplina de Linguagem de Programação Orientada a Objetos (LPOO). 
 
-Therefore, the scripts are divided in different folders, each one contains the functionality for the project. Alongside this, obviously respecting the OOP rules, the scripts are divides in such Class archives.
+O jogador escolhe uma área de conhecimento e enfrenta uma campanha progressiva, usando estratégias e habilidades especiais polimórficas.
 
-There are two types of questions: Multiple Choices and True/False questions.
+---
 
-Battle System Dynamics: Each round consists of: presenting a question, receiving the player's input, evaluating the answer, and applying the immediate effect (damage, healing, or skill activation) and the game ends when either the player or the opponent reaches zero health points (HP).
+## 🛠️ Pré-requisitos
 
-Chracters Attributes: Attack, Defense and Special Skills.
+Para rodar o projeto, você vai precisar de:
+- JDK (versão 17 ou superior).
+- Apache Maven (versão 3.6 ou superior).
 
-Abstract Classes: Character and Question.
+---
 
-Polymorphism: The game processes different types of questions (Multiple Choice and True/False) through a single reference of the abstract class Question, allowing the BattleManager to evaluate answers dynamically.
+## 🔑 Configuração da API (OpenAI)
 
-Interfaces: Implementation of the SpecialAbility interface to standardize how different power-ups (like ShieldAbility or DoubleDamage) interact with the characters during combat.
+Como o jogo usa IA para gerar perguntas dinâmicas, siga estes passos:
+1. Na pasta raiz do projeto (onde está o `pom.xml`), crie um arquivo chamado `api_key.txt`.
+2. Cole sua chave secreta da OpenAI dentro dele (sem espaços ou linhas extras).
+3. Salve. (O arquivo já está no `.gitignore` para sua segurança).
 
-Encapsulation: The atributes (like Health and Attack) are private and accessed by Methods.
+---
 
-Link for the ClassesDiagram: 
+## 🚀 Como Executar
+
+Abra o terminal na **pasta raiz** do projeto e rode os comandos:
+
+1. Compilar:
+   ```bash
+   mvn clean compile
+
+2. Rodar:
+
+    Bash
+    mvn exec:java -Dexec.mainClass="FuncaoMain.Main" 
+
+Mecânicas
+Personagens: Escolha entre Aluno de Humanas (MID) ou Aluno de Exatas (NERD).
+
+Campanha: 3 oponentes com dificuldade crescente.
+
+Habilidades: Use o menu tático para ativar Cura, Escudo ou Dano Duplo.
+
+Estatísticas: Ao final, o jogo mostra um relatório completo de acertos, erros e pontuação.      

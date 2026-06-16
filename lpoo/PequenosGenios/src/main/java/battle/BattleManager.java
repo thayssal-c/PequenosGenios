@@ -14,10 +14,10 @@ public class BattleManager {
 
     private final Player player;
     private final Enemy enemy;
-    private final questions_system questionGenerator; // Alterado de QuestionBank para o Motor de IA
+    private final questions_system questionGenerator;
     private final Scanner scanner;
     private int roundNumber;
-    private boolean abilityUsedThisBattle; // Restrição tática de uso por batalha
+    private boolean abilityUsedThisBattle;
     private final List<SpecialAbility> availableAbilities;
 
     public BattleManager(Player player, Enemy enemy, questions_system questionGenerator, Scanner scanner) {
@@ -28,10 +28,8 @@ public class BattleManager {
         this.roundNumber = 1;
         this.abilityUsedThisBattle = false;
         
-        // Polimorfismo puro: carregando lista dinâmica de habilidades através da Interface base
         this.availableAbilities = new ArrayList<>();
         this.availableAbilities.add(new HealAbility());
-        // this.availableAbilities.add(new DoubleDamageAbility());
         this.availableAbilities.add(new ShieldAbility());
     }
 
@@ -46,19 +44,20 @@ public class BattleManager {
         pressEnterToContinue();
 
         while (player.isAlive() && enemy.isAlive()) {
-            System.out.println("\n=======================================");
+            System.out.println("\n================================================================================");
             System.out.println("--- Rodada " + roundNumber + " ---");
-            System.out.println("Status Jogador -> " + player);
-            System.out.printf("Status Inimigo -> %s | Dificuldade: %s\n", enemy.getName(), enemy.getDifficulty().toUpperCase());
-            System.out.println("=======================================");
+            // INTERFACE MELHORADA: Barras de vida dinâmicas para o fator UAU na Entrega 3
+            System.out.printf("Jogador -> %-12s %s %3d/%-3d HP | Escudo: %-2d | Score: %d%n", 
+                    player.getName(), exibirBarraVida(player.getHp(), player.getMaxHp()), player.getHp(), player.getMaxHp(), player.getShield(), player.getScore());
+            System.out.printf("Inimigo -> %-12s %s %3d/%-3d HP | Dificuldade: %s%n", 
+                    enemy.getName(), exibirBarraVida(enemy.getHp(), enemy.getMaxHp()), enemy.getHp(), enemy.getMaxHp(), enemy.getDifficulty().toUpperCase());
+            System.out.println("================================================================================");
 
             String tipoPergunta = (Math.random() < 0.5) ? "multiple_choice" : "true_false";
             Question question = questionGenerator.generateQuestion(enemy.getDifficulty(), tipoPergunta);
 
-            // 2. Apresenta o menu para uso estratégico de habilidades
             exibirMenuTurno(question);
 
-            // 3. Exibe os dados da pergunta e gerencia a mecânica de tempo limite (Requisito 2)
             System.out.println("\n" + question);
             
             if (question instanceof TimedQuestion) {
@@ -66,7 +65,6 @@ public class BattleManager {
                 System.out.println("⚠️ ATENÇÃO CRÍTICA: Pergunta com tempo limite de " + limite + " segundos!");
             }
 
-            // Cronometragem precisa do input do console
             long startTime = System.currentTimeMillis();
             System.out.print("\nSua resposta: ");
             String answer = scanner.nextLine();
@@ -82,9 +80,8 @@ public class BattleManager {
                 }
             }
 
-            // 4. Sistema de Dificuldade: Cálculo de Dano e Score Parametrizado (Requisito 4)
             int danoDoJogador = player.getAttackPower();
-            int danoDoInimigo = enemy.getAttackPower(); // ou enemy.getAttack()
+            int danoDoInimigo = enemy.getAttackPower();
             int pontosDaRodada = 10;
 
             if (enemy.getDifficulty().equalsIgnoreCase("medium")) {
@@ -97,18 +94,19 @@ public class BattleManager {
                 pontosDaRodada = 50;
             }
 
-            // 5. Avaliação do Turno
+            // Avaliação do Turno com injeção das Estatísticas da Entrega Final
             if (question.checkAnswer(answer) && !tempoEsgotado) {
                 if (player.isDoubleDamageActive()) {
                     danoDoJogador *= 2;
-                    player.setDoubleDamageActive(false); // Consome a passiva
+                    player.setDoubleDamageActive(false);
                     System.out.println("💥 ATAQUE CRÍTICO! Dano dobrado computado com sucesso!");
                 }
                 
                 System.out.println("✨ RESPOSTA CORRETA! Você infligiu " + danoDoJogador + " de dano em " + enemy.getName());
-                
-                // Nota: se o método de causar dano do Inimigo for diferente, altere aqui:
                 enemy.takeDamage(danoDoJogador); 
+                
+                // REGISTA O ACERTO NAS ESTATÍSTICAS
+                player.incrementaAcerto();
                 
                 player.addScore(pontosDaRodada);
                 System.out.println("🏆 +" + pontosDaRodada + " pontos adicionados ao seu placar!");
@@ -118,6 +116,10 @@ public class BattleManager {
                 } else {
                     System.out.println("❌ RESPOSTA INCORRETA!");
                 }
+                
+                // REGISTA O ERRO NAS ESTATÍSTICAS
+                player.incrementaErro();
+                
                 System.out.println("💥 " + enemy.getName() + " aproveitou sua falha e te atacou causando " + danoDoInimigo + " de dano!");
                 player.takeDamage(danoDoInimigo);
             }
@@ -152,7 +154,6 @@ public class BattleManager {
             try {
                 int index = Integer.parseInt(escolhaHab) - 1;
                 if (index >= 0 && index < availableAbilities.size()) {
-                    // Execução polimórfica da habilidade
                     availableAbilities.get(index).use(player, enemy, currentQuestion);
                     abilityUsedThisBattle = true;
                 }
@@ -163,7 +164,7 @@ public class BattleManager {
     }
 
     private boolean showBattleResult() {
-        System.out.println("\n╔══════════════════════════════════════╗");
+        System.out.println("\n==═╗");
         if (player.isAlive()) {
             System.out.println("║         ★ VITÓRIA! ★                 ║");
             System.out.printf("║  Você derrotou %s!%n", enemy.getName());
@@ -178,5 +179,23 @@ public class BattleManager {
     private void pressEnterToContinue() {
         System.out.print("\n[Pressione ENTER para avançar...]");
         scanner.nextLine();
+    }
+
+    // MÉTODO AUXILIAR PARA RENDERIZAR A BARRA GRÁFICA NA CONSOLA
+    private String exibirBarraVida(int hpAtual, int hpMaximo) {
+        int tamanhoBarra = 10; 
+        double percentagem = (double) hpAtual / hpMaximo;
+        int blocosPreenchidos = (int) Math.round(percentagem * tamanhoBarra);
+
+        StringBuilder barra = new StringBuilder("[");
+        for (int i = 0; i < tamanhoBarra; i++) {
+            if (i < blocosPreenchidos) {
+                barra.append("█");
+            } else {
+                barra.append("░");
+            }
+        }
+        barra.append("]");
+        return barra.toString();
     }
 }
