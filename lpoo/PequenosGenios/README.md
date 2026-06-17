@@ -49,9 +49,8 @@ Estatísticas: Ao final, o jogo mostra um relatório completo de acertos, erros 
 
 Diagrama de Classes UML (Formato Mermaid)
 
+![UML](UML_LPOO.png)
 
-
-```mermaid
 classDiagram
     direction topBottom
 
